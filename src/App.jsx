@@ -1,40 +1,52 @@
 import './App.css';
-import { useState } from 'react';
-import Cookies from 'js-cookie';
-
-const checkLists = ['パン', 'おにぎり', '焼き肉', 'ラーメン', 'たこ焼き', 'アイスクリーム'];
-
-const CheckBox = ({ id, value, checked, onChange }) => {
-  return <input id={id} type='checkbox' name='inputNames' checked={checked} onChange={onChange} value={value} />;
-};
+import { useState, useEffect } from 'react';
 
 const App = () => {
-  const check = Cookies.get('check');
-  const toBoolean = () => {
-    return check.toLowerCase() === 'true';
-  };
-  const [isChecked, setIsChecked] = useState(toBoolean());
-  const handleChange = (e) => {
-    setIsChecked({
-      ...isChecked,
-      [e.target.id]: e.target.checked,
-    });
+  const [currentCheckboxId, setCheckboxId] = useState({
+    naming: false,
+    fullname: false,
+  });
+
+  useEffect(() => {
+    const data = {
+      naming: localStorage.getItem('naming') === 'true' ? true : false,
+      fullname: localStorage.getItem('fullname') === 'true' ? true : false,
+    };
+    setCheckboxId(data);
+  }, []);
+
+  const setCheckbox = (event) => {
+    const naming = event.target.checked;
+    localStorage.setItem('naming', naming);
+
+    setCheckboxId((prevData) => ({
+      ...prevData,
+      naming: naming,
+    }));
   };
 
-  Cookies.set('check', isChecked);
+  const setCheckbox2 = (event) => {
+    const fullname = event.target.checked;
+    localStorage.setItem('fullname', fullname);
+
+    setCheckboxId((prevData) => ({
+      ...prevData,
+      fullname: fullname,
+    }));
+  };
+
   return (
-    <div>
-      <p>リロードしても値が保持されるチェックボックス</p>
-      {checkLists.map((item, index) => {
-        index = index + 1;
-        return (
-          <label htmlFor={`id_${index}`} key={`key_${index}`}>
-            <CheckBox id={`id_${index}`} value={item} onChange={handleChange} checked={isChecked[item.id]} />
-            {item}
-          </label>
-        );
-      })}
-      {/* <input type='checkbox' onChange={handleChange} checked={isChecked} /> */}
+    <div className='App'>
+      <h1>リロードしても消えないチェックボックス</h1>
+      <label>
+        ニックネーム
+        <input type='checkbox' onChange={setCheckbox} id='first' checked={currentCheckboxId.naming} />
+      </label>
+
+      <label>
+        フルネーム
+        <input type='checkbox' onChange={setCheckbox2} id='second' checked={currentCheckboxId.fullname} />
+      </label>
     </div>
   );
 };
